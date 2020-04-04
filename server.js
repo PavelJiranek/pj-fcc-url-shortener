@@ -4,21 +4,22 @@ var express = require('express');
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
 const bodyParser = require("body-parser");
+const R = require('ramda');
+
 const myApp = require('./myApp');
-const r = require('ramda');
+const utils = require('./utils');
 
+require('dotenv').config();
 var cors = require('cors');
-
 var app = express();
 
 // Basic Configuration 
 var port = process.env.PORT || 3000;
 
-/** this project needs a db !! **/ 
 // mongoose.connect(process.env.DB_URI);
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 });
 
 app.use(cors());
@@ -31,44 +32,37 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/public', express.static(process.cwd() + '/public'));
 
 // log requests
-app.use(({ method, path, ip }, res, next) => {
+app.use(({method, path, ip}, res, next) => {
   // console.log(`${method} ${path} - ${ip}`);
   next();
 });
 
 
-app.get('/', function(req, res){
+app.get('/', function (req, res) {
   res.sendFile(process.cwd() + '/views/index.html');
 });
 
-  
-// your first API endpoint... 
 
+// New URL endpoint
 app.post("/api/shorturl/new", function (req, res, next) {
-  // console.log(req.body)
   const shortUrl = myApp.createUrl(req.body.url);
-  
-  myApp.saveUrl(shortUrl);
-  // const savedUrl = myApp.findUrlById(shortUrl._id, (err,data) => err ? next(err) : next(null,data)).then((err, data) => {
-  const savedUrl = myApp.findUrlById(shortUrl._id).then((err, data) => {
-    console.log(err,'data', data)
+
+  myApp.saveUrl(shortUrl, (err, urlData) => {
+    if (err) {
+      console.log(`Error when saving url: ${err}`);
+      return next(err);
+    }
+    myApp.findUrlById(utils.getUrlId(urlData), (err, savedUrlData) => {
+      if (err) {
+        console.log(`Created url not found with error: ${err}`);
+        return next(err);
+      }
+      res.json(savedUrlData)
+    })
   });
-  
-  // console.log('body',req.body, 'shortUrl',shortUrl,'saved',savedUrl)
-  //res.json(savedUrl);
-  res.json({url: req.body.url});
 });
 
-
-// app.post("/api/shorturl/new", function (req, res) {
-//   // console.log(req.body)
-//   const shortUrl = myApp.createAndSaveUrl(req.body);
-//   console.log('body',req.body, 'shortUrl',shortUrl)
-//   res.json(shortUrl);
-// });
-
-
-app.get("*", function(req, res) {
+app.get("*", function (req, res) {
   res.status(404).send("No url here, sorry 404");
 });
 
