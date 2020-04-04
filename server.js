@@ -1,33 +1,21 @@
 'use strict';
 
-var express = require('express');
-var mongo = require('mongodb');
-var mongoose = require('mongoose');
+const express = require('express');
 const bodyParser = require("body-parser");
-const R = require('ramda');
+const cors = require('cors');
 
 const myApp = require('./myApp');
 const utils = require('./utils');
 
-require('dotenv').config();
-var cors = require('cors');
-var app = express();
+const app = express();
 
 // Basic Configuration 
-var port = process.env.PORT || 3000;
-
-// mongoose.connect(process.env.DB_URI);
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+const port = process.env.PORT || 3000;
 
 app.use(cors());
 
 /** this project needs to parse POST bodies **/
-// you should mount the body-parser here
-
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
 
 app.use('/public', express.static(process.cwd() + '/public'));
 
@@ -68,7 +56,8 @@ app.get("/api/admin/dropUrls", function (req, res, next) {
       console.log('Err:', err);
       return next(err);
     }
-    res.send(`Deleted ${success.deletedCount} urls`);
+    res.send(`Deleted ${success.deletedCount} urls.
+    Count reset to ${success.nextCount}`);
   })
 });
 

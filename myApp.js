@@ -1,47 +1,54 @@
-const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
-const R = require("ramda");
+const mongoose = require("mongoose"),
+    autoIncrement = require('mongoose-auto-increment');
 
-// mongoose.connect(process.env.MONGO_URI, {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true
-// });
+require('dotenv').config();
+
+const connection = mongoose.createConnection(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+});
+
+autoIncrement.initialize(connection);
 
 const Schema = mongoose.Schema;
 
 const urlSchema = new Schema({
-  short_url: {
-    type: Number,
-    // default: 0,
-    required: true,
-    // unique: true
-  },
-  original_url: {type: String, required: true},
+    short_url: {
+        type: Number,
+        required: true,
+        unique: true,
+    },
+    original_url: {type: String, required: true},
 });
 
-const Url = mongoose.model("Url", urlSchema);
+urlSchema.plugin(autoIncrement.plugin, {model: 'Url', field: 'short_url'});
+const Url = connection.model("Url", urlSchema);
 
-const createUrl = url => (
-    new Url({
-      short_url: 1, // todo unique, increment
-      original_url: url,
-    }));
 
 const defaultDoneCallback = done => (err, data) => {
-  if (err) return done(err);
-  done(null, data);
+    if (err) return done(err);
+    done(null, data);
 };
 
+const createUrl = url => new Url({original_url: url});
+
 const saveUrl = function (url, done) {
-  url.save(defaultDoneCallback(done));
+    url.save(defaultDoneCallback(done));
 };
 
 const findUrlById = async (urlId, done) => {
-  Url.findById(urlId, ' original_url short_url -_id', defaultDoneCallback(done));
+    Url.findById(urlId, ' original_url short_url -_id', defaultDoneCallback(done));
 };
 
 const removeAllUrls = done => {
-  Url.deleteMany({}, defaultDoneCallback(done))
+    Url.deleteMany({}, (err, data) => {
+        if (err) return done(err);
+        Url.resetCount((err, nextCount) => {
+            if (err) return done(err);
+            data.nextCount = nextCount;
+            done(null, data);
+        })
+    })
 };
 
 exports.removeAllUrls = removeAllUrls;
