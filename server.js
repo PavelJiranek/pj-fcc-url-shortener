@@ -62,6 +62,16 @@ app.post("/api/shorturl/new", function (req, res, next) {
   });
 });
 
+app.get("/api/admin/dropUrls", function (req, res, next) {
+  myApp.removeAllUrls((err, success) => {
+    if (err) {
+      console.log('Err:', err);
+      return next(err);
+    }
+    res.send(`Deleted ${success.deletedCount} urls`);
+  })
+});
+
 app.get("*", function (req, res) {
   res.status(404).send("No url here, sorry 404");
 });

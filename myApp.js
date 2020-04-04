@@ -21,28 +21,30 @@ const urlSchema = new Schema({
 
 const Url = mongoose.model("Url", urlSchema);
 
-const createUrl = url =>(
+const createUrl = url => (
     new Url({
       short_url: 1, // todo unique, increment
       original_url: url,
     }));
 
-const saveUrl = function (url, done) {
-  url.save((error, data) => {
-    if (error) return done(error);
-    done(null, data);
-  });
+const defaultDoneCallback = done => (err, data) => {
+  if (err) return done(err);
+  done(null, data);
 };
 
+const saveUrl = function (url, done) {
+  url.save(defaultDoneCallback(done));
+};
 
 const findUrlById = async (urlId, done) => {
-  Url.findById(urlId, ' original_url short_url -_id', (err, data) => {
-    if (err) return done(err);
-    done(null, data);
-  });
+  Url.findById(urlId, ' original_url short_url -_id', defaultDoneCallback(done));
 };
 
+const removeAllUrls = done => {
+  Url.deleteMany({}, defaultDoneCallback(done))
+};
 
+exports.removeAllUrls = removeAllUrls;
 exports.createUrl = createUrl;
 exports.saveUrl = saveUrl;
 exports.findUrlById = findUrlById;
