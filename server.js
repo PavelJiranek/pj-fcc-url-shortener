@@ -51,6 +51,20 @@ app.post("/api/shorturl/new", function (req, res, next) {
   });
 });
 
+// redirect to saved URLs
+app.get("/api/shorturl/:shortUrl", function (req, res, next) {
+  const shortUrl = req.params.shortUrl;
+  myApp.findUrlByShortUrl(shortUrl, (err, urlData) => {
+    if (err) {
+      console.log(`Shortened url not found error:\n${err}`);
+      return next('Shortened url not found');
+    }
+    const origUrl = utils.getOrigUrl(urlData);
+    res.redirect(origUrl);
+  })
+});
+
+
 app.get("/api/admin/dropUrls", function (req, res, next) {
   myApp.removeAllUrls((err, success) => {
     if (err) {

@@ -50,7 +50,11 @@ const saveUrl = function (url, done) {
 };
 
 const findUrlById = (urlId, done) => {
-    Url.findById(urlId, ' original_url short_url -_id', defaultDoneCallback(done));
+    Url.findById(urlId, 'original_url short_url -_id', defaultDoneCallback(done));
+};
+
+const findUrlByShortUrl = (shortUrl, done) => {
+    Url.find({short_url: shortUrl}, 'original_url -_id', defaultDoneCallback(done));
 };
 
 /**
@@ -90,5 +94,6 @@ module.exports = {
     saveUrl,
     findUrlById,
     saveAndSendUrl,
+    findUrlByShortUrl,
     removeAllUrls,
 };

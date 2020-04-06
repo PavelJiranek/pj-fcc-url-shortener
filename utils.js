@@ -11,8 +11,15 @@ const isInvalidUrl = url => R.isNil(validateUrl(url));
 
 const getHostname = url => urlModule.parse(url).hostname;
 
+/**
+ * @param urlData - data from mongoose.find()
+ * @returns {string}
+ */
+const getOrigUrl = urlData => R.path([0, 'original_url'], urlData);
+
 module.exports = {
     getUrlId,
     isInvalidUrl,
     getHostname,
+    getOrigUrl,
 };
