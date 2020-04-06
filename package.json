@@ -1,8 +1,8 @@
 {
   "name": "shorturl",
-  "author": "Pavel Jiranek",
-  "version": "0.0.1",
-  "description": "An FCC APIs and Miscroservices project for shortening URLs",
+  "author": "Pavel Jiránek",
+  "version": "1.0.0",
+  "description": "A freeCodeCamp APIs and Microservices project for shortening URLs",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -20,13 +20,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://hyperdev.com/#!/project/welcome-project"
+    "url": "https://github.com/PavelJiranek/pj-fcc-url-shortener"
   },
   "keywords": [
     "node",
-    "hyperdev",
     "express",
-    "freecodecampt",
+    "freecodecamp",
     "url",
     "shortener"
   ],
