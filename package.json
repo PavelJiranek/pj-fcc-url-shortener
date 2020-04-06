@@ -15,7 +15,8 @@
     "cors": "^2.8.5",
     "body-parser": "^1.19.0",
     "ramda": "^0.27.0",
-    "mongoose-auto-increment": "^5.0.1"
+    "mongoose-auto-increment": "^5.0.1",
+    "valid-url": "^1.0.9"
   },
   "repository": {
     "type": "git",

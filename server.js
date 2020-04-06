@@ -33,28 +33,28 @@ app.get('/', function (req, res) {
 
 // New URL endpoint
 app.post("/api/shorturl/new", function (req, res, next) {
-  const shortUrl = myApp.createUrl(req.body.url);
+  const url = req.body.url;
 
-  myApp.saveUrl(shortUrl, (err, urlData) => {
+  if (utils.isInvalidUrl(url)) {
+    res.json(myApp.invalidUrl);
+    return next(`Invalid url format:\n${url}`);
+  }
+
+  myApp.validateHost(url, err => {
     if (err) {
-      console.log(`Error when saving url: ${err}`);
-      return next(err);
+      res.json(myApp.invalidUrl);
+      return next(`Invalid hostname error:\n${err}`);
     }
-    myApp.findUrlById(utils.getUrlId(urlData), (err, savedUrlData) => {
-      if (err) {
-        console.log(`Created url not found with error: ${err}`);
-        return next(err);
-      }
-      res.json(savedUrlData)
-    })
+
+    const shortUrl = myApp.createUrl(url);
+    myApp.saveAndSendUrl(shortUrl, res, next);
   });
 });
 
 app.get("/api/admin/dropUrls", function (req, res, next) {
   myApp.removeAllUrls((err, success) => {
     if (err) {
-      console.log('Err:', err);
-      return next(err);
+      return next(`Error when deleting urls: ${err}`);
     }
     res.send(`Deleted ${success.deletedCount} urls.
     Count reset to ${success.nextCount}`);
